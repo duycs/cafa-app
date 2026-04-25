@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điều phối hàng hóa - Import dữ liệu từ Excel</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: #eef2f7;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            padding: 20px 24px 32px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 0.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sub {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-left: 5px solid #e94560;
+            padding-left: 16px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 32px;
+            margin-bottom: 24px;
+            align-items: flex-end;
+            border: 1px solid #e2edf2;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 250px;
+        }
+        .filter-group label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #2c5282;
+        }
+        .param-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .param-group label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #2c5282;
+        }
+        input, select {
+            padding: 8px 14px;
+            border-radius: 40px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            min-width: 130px;
+        }
+        button {
+            background: #e94560;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button.btn-outline {
+            background: white;
+            color: #e94560;
+            border: 1px solid #e94560;
+        }
+        button.btn-secondary {
+            background: #3b82f6;
+        }
+        button.btn-import {
+            background: #10b981;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            box-shadow: 0 0 0 1px #cbd5e1;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .inventory-table th, .inventory-table td {
+            border: 1px solid #d0dae8;
+            padding: 8px 6px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .inventory-table th {
+            background: #1e2a47;
+            color: white;
+            font-weight: 600;
+        }
+        .before-cell { background-color: #fff7e0; }
+        .after-cell { background-color: #f0fdf4; }
+        .changed-cell {
+            background-color: #d4edda !important;
+            font-weight: bold;
+            border: 2px solid #28a745;
+        }
+        .low-stock {
+            background-color: #f8d7da !important;
+            color: #721c24;
+            font-weight: bold;
+        }
+        .warning-alert {
+            background: #fff3cd;
+            border-left: 6px solid #ffc107;
+            padding: 12px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 30px 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e94560;
+            display: inline-block;
+        }
+        .log-area {
+            background: #fef4e8;
+            border-radius: 20px;
+            padding: 14px 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 0.8rem;
+            border-left: 6px solid #f59e0b;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .history-area {
+            background: #eef2ff;
+            border-radius: 20px;
+            padding: 14px 20px;
+            margin-top: 20px;
+        }
+        .history-item {
+            background: white;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #3b82f6;
+        }
+        .invoice-area {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+        .invoice-card {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            width: 380px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            page-break-inside: avoid;
+            font-size: 0.8rem;
+        }
+        .invoice-card h3 {
+            margin: 0 0 12px 0;
+            background: #2c3e66;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 40px;
+            font-size: 1rem;
+            text-align: center;
+        }
+        .invoice-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #ddd;
+            padding: 6px 0;
+        }
+        .invoice-total {
+            font-weight: bold;
+            margin-top: 8px;
+            text-align: right;
+            border-top: 1px solid #ccc;
+            padding-top: 6px;
+        }
+        .sign-line {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+        }
+        .print-buttons {
+            margin: 20px 0;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .filter-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #e2e8f0;
+            border-radius: 30px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            margin-left: 10px;
+        }
+        .clear-filter {
+            cursor: pointer;
+            margin-left: 6px;
+            font-weight: bold;
+            color: #e94560;
+        }
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .file-input-wrapper input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        @media print {
+            body { background: white; padding: 0; }
+            .toolbar, .print-buttons button, .no-print, .log-area, .history-area, .warning-alert { display: none; }
+            .invoice-card { break-inside: avoid; width: 100%; margin-bottom: 20px; }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+<div class="container" id="mainContent">
+    <h1>📦 ĐIỀU PHỐI HÀNG HÓA <small>Import Excel | Lọc sản phẩm | Lưu lịch sử</small></h1>
+    <div class="sub">
+        <span>⚙️ Nguyên tắc: Kho tổng ưu tiên cấp → nếu hết, điều chuyển từ ưu tiên thấp lên cao</span>
+        <span>🔄 Thứ tự ưu tiên: <strong>A > B > C > D > E > Shopee</strong></span>
+    </div>
+    <div class="toolbar no-print">
+        <div class="filter-group">
+            <label>🔍 Lọc mã hàng (gõ hoặc chọn)</label>
+            <input type="text" id="productFilter" list="productList" placeholder="Nhập hoặc chọn mã hàng...">
+            <datalist id="productList"></datalist>
+            <div id="filterStatus" class="filter-badge" style="display: none;"></div>
+        </div>
+        <div class="param-group"><label>📌 Ngưỡng tồn</label><input type="number" id="minStock" value="10" step="1"></div>
+        <div class="param-group"><label>👤 Người điều phối</label><input type="text" id="coordinator" value="Nguyễn Thị Hậu Cần"></div>
+        <div class="param-group"><label>📅 Ngày</label><input type="date" id="dateTransfer"></div>
+        <button id="allocateBtn" class="btn-secondary">🚀 THỰC HIỆN ĐIỀU PHỐI</button>
+        <button id="resetBtn" class="btn-outline">⟳ RESET DỮ LIỆU MẪU</button>
+        <div class="file-input-wrapper">
+            <button id="importBtn" class="btn-import">📂 Import Excel</button>
+            <input type="file" id="fileInput" accept=".xlsx, .xls">
+        </div>
+        <button id="exportExcelBtn" class="btn-outline" style="background:#10b981; color:white;">📊 Xuất Excel</button>
+    </div>
+
+    <div id="smartAlert" class="warning-alert no-print" style="display: none;"></div>
+    <div style="overflow-x: auto;">
+        <table class="inventory-table" id="compareTable">
+            <thead><tr><th rowspan="2">Mã hàng</th><th rowspan="2">Tên hàng</th>
+            <th colspan="2">Kho tổng</th><th colspan="2">Shopee</th><th colspan="2">Modul A</th><th colspan="2">Modul B</th>
+            <th colspan="2">Modul C</th><th colspan="2">Modul D</th><th colspan="2">Modul E</th></tr>
+            <tr><th>Trước</th><th>Sau</th><th>Trước</th><th>Sau</th><th>Trước</th><th>Sau</th><th>Trước</th><th>Sau</th>
+            <th>Trước</th><th>Sau</th><th>Trước</th><th>Sau</th><th>Trước</th><th>Sau</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="section-title no-print">📋 NHẬT KÝ ĐIỀU PHỐI HIỆN TẠI</div>
+    <div id="transferLog" class="log-area no-print">⏳ Nhấn "Thực hiện điều phối" để xem chi tiết...</div>
+
+    <div class="section-title no-print">📜 LỊCH SỬ ĐIỀU PHỐI (đã lưu)</div>
+    <div id="historyArea" class="history-area no-print"></div>
+
+    <div class="section-title no-print">📄 PHIẾU ĐIỀU PHỐI (nhập - xuất)</div>
+    <div class="print-buttons no-print">
+        <button id="printAllInvoices">🖨️ In tất cả phiếu</button>
+        <button id="exportPdfInvoices">📑 Xuất PDF tất cả phiếu</button>
+    </div>
+    <div id="invoicesContainer" class="invoice-area"></div>
+</div>
+
+<script>
+    // ==================== CẤU TRÚC DỮ LIỆU CHUẨN ====================
+    let currentData = [];
+    let beforeData = [];
+    let currentTransactions = [];
+    let history = [];
+    let originalData = [];  // lưu bản gốc sau khi import để reset
+
+    const priorityOrder = [
+        { key: "modA", label: "Modul A", rank:1 },
+        { key: "modB", label: "Modul B", rank:2 },
+        { key: "modC", label: "Modul C", rank:3 },
+        { key: "modD", label: "Modul D", rank:4 },
+        { key: "modE", label: "Modul E", rank:5 },
+        { key: "shopee", label: "Shopee", rank:6 }
+    ];
+
+    // ==================== HÀM XỬ LÝ IMPORT EXCEL ====================
+    function importExcel(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: 0 });
+            if (!rows || rows.length < 2) {
+                alert("File không có dữ liệu (cần ít nhất dòng tiêu đề và dòng dữ liệu)");
+                return;
+            }
+            // Dòng đầu tiên là tiêu đề (có thể bỏ qua)
+            const headers = rows[0];
+            // Xác định vị trí các cột dựa trên tên (không phân biệt hoa thường)
+            const colIdx = {
+                code: -1, name: -1, hq: -1, shopee: -1,
+                modA: -1, modB: -1, modC: -1, modD: -1, modE: -1
+            };
+            for (let i = 0; i < headers.length; i++) {
+                let h = String(headers[i]).toLowerCase().trim();
+                if (h.includes("mã") || h.includes("code")) colIdx.code = i;
+                else if (h.includes("tên") || h.includes("name")) colIdx.name = i;
+                else if (h.includes("kho tổng") || h.includes("hq")) colIdx.hq = i;
+                else if (h.includes("shopee")) colIdx.shopee = i;
+                else if (h.includes("modul a") || h.includes("module a")) colIdx.modA = i;
+                else if (h.includes("modul b") || h.includes("module b")) colIdx.modB = i;
+                else if (h.includes("modul c") || h.includes("module c")) colIdx.modC = i;
+                else if (h.includes("modul d") || h.includes("module d")) colIdx.modD = i;
+                else if (h.includes("modul e") || h.includes("module e")) colIdx.modE = i;
+            }
+            // Kiểm tra các cột bắt buộc
+            if (colIdx.code === -1 || colIdx.hq === -1 || colIdx.shopee === -1 ||
+                colIdx.modA === -1 || colIdx.modB === -1 || colIdx.modC === -1 ||
+                colIdx.modD === -1 || colIdx.modE === -1) {
+                alert("File Excel phải có các cột: Mã hàng, Kho tổng, Shopee, Modul A, Modul B, Modul C, Modul D, Modul E (tên cột có thể viết hoa/thường)");
+                return;
+            }
+            let newData = [];
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row[colIdx.code]) continue; // bỏ qua dòng không có mã
+                newData.push({
+                    code: String(row[colIdx.code]).trim(),
+                    name: colIdx.name !== -1 ? String(row[colIdx.name] || "").trim() : "",
+                    hq: Number(row[colIdx.hq]) || 0,
+                    shopee: Number(row[colIdx.shopee]) || 0,
+                    modA: Number(row[colIdx.modA]) || 0,
+                    modB: Number(row[colIdx.modB]) || 0,
+                    modC: Number(row[colIdx.modC]) || 0,
+                    modD: Number(row[colIdx.modD]) || 0,
+                    modE: Number(row[colIdx.modE]) || 0
+                });
+            }
+            if (newData.length === 0) {
+                alert("Không có dữ liệu hợp lệ trong file");
+                return;
+            }
+            originalData = JSON.parse(JSON.stringify(newData));
+            resetAllFromOriginal();
+            populateProductList();
+            alert(`Đã import thành công ${newData.length} mặt hàng`);
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function resetAllFromOriginal() {
+        currentData = JSON.parse(JSON.stringify(originalData));
+        beforeData = JSON.parse(JSON.stringify(originalData));
+        currentTransactions = [];
+        const minStock = parseInt(document.getElementById('minStock').value) || 10;
+        renderCompareTable(currentData, currentData, minStock);
+        document.getElementById('transferLog').innerHTML = `⏳ Nhấn "Thực hiện điều phối" để xem chi tiết...`;
+        document.getElementById('invoicesContainer').innerHTML = `<div style="text-align:center;">⏳ Nhấn THỰC HIỆN ĐIỀU PHỐI để tạo phiếu.</div>`;
+        document.getElementById('smartAlert').style.display = 'none';
+        if (!document.getElementById('dateTransfer').value) {
+            document.getElementById('dateTransfer').value = new Date().toISOString().slice(0,10);
+        }
+        populateProductList();
+        clearFilter();
+    }
+
+    // ==================== HÀM FILTER ====================
+    function populateProductList() {
+        const datalist = document.getElementById('productList');
+        datalist.innerHTML = '';
+        const productCodes = [...new Set(currentData.map(item => item.code))];
+        productCodes.forEach(code => {
+            const option = document.createElement('option');
+            option.value = code;
+            datalist.appendChild(option);
+        });
+    }
+
+    function filterTable() {
+        const filterInput = document.getElementById('productFilter');
+        const filterValue = filterInput.value.trim();
+        const filterStatusDiv = document.getElementById('filterStatus');
+        const rows = document.querySelectorAll('#tableBody tr');
+        if (!filterValue) {
+            filterStatusDiv.style.display = 'none';
+            rows.forEach(row => row.style.display = '');
+            return;
+        }
+        let matchCount = 0;
+        rows.forEach(row => {
+            const codeCell = row.cells[0];
+            if (codeCell && codeCell.innerText.includes(filterValue)) {
+                row.style.display = '';
+                matchCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        filterStatusDiv.innerHTML = `🔍 Đang lọc: "${filterValue}" <span class="clear-filter" onclick="clearFilter()">✖</span>`;
+        filterStatusDiv.style.display = 'inline-flex';
+        if (matchCount === 0) {
+            filterStatusDiv.style.backgroundColor = '#f8d7da';
+            filterStatusDiv.style.color = '#721c24';
+        } else {
+            filterStatusDiv.style.backgroundColor = '#e2e8f0';
+            filterStatusDiv.style.color = '#1e2a47';
+        }
+    }
+
+    window.clearFilter = function() {
+        document.getElementById('productFilter').value = '';
+        filterTable();
+    }
+
+    // ==================== HÀM ĐIỀU PHỐI ====================
+    function copyData(source) { return source.map(item => ({ ...item })); }
+
+    function calculateNeeds(item, minStock) {
+        let needs = {};
+        for (let p of priorityOrder) {
+            let val = item[p.key] || 0;
+            needs[p.key] = (val < minStock) ? (minStock - val) : 0;
+        }
+        return needs;
+    }
+
+    function runAllocationWithTrans(data, minStock) {
+        let newData = copyData(data);
+        let trans = [];
+        for (let idx = 0; idx < newData.length; idx++) {
+            let item = newData[idx];
+            let totalHQ = item.hq;
+            let needs = calculateNeeds(item, minStock);
+            let remainingHQ = totalHQ;
+            if (remainingHQ > 0) {
+                for (let p of priorityOrder) {
+                    if (needs[p.key] > 0 && remainingHQ > 0) {
+                        let allocate = Math.min(needs[p.key], remainingHQ);
+                        item[p.key] += allocate;
+                        trans.push({
+                            from: "KHO TỔNG (H1G018)",
+                            to: p.label,
+                            code: item.code,
+                            quantity: allocate,
+                            reason: `Bổ sung theo ngưỡng ${minStock}`
+                        });
+                        remainingHQ -= allocate;
+                        needs[p.key] -= allocate;
+                    }
+                }
+                item.hq = remainingHQ;
+            }
+            if (item.hq === 0 || remainingHQ === 0) {
+                for (let i = 0; i < priorityOrder.length; i++) {
+                    let targetKey = priorityOrder[i].key;
+                    if (needs[targetKey] === 0) continue;
+                    for (let j = i+1; j < priorityOrder.length; j++) {
+                        let sourceKey = priorityOrder[j].key;
+                        let stockSource = item[sourceKey];
+                        let surplus = Math.max(0, stockSource - minStock);
+                        if (surplus > 0 && needs[targetKey] > 0) {
+                            let transfer = Math.min(needs[targetKey], surplus);
+                            item[sourceKey] -= transfer;
+                            item[targetKey] += transfer;
+                            trans.push({
+                                from: priorityOrder[j].label,
+                                to: priorityOrder[i].label,
+                                code: item.code,
+                                quantity: transfer,
+                                reason: `Điều chuyển từ nơi dư (còn ${stockSource})`
+                            });
+                            needs[targetKey] -= transfer;
+                            if (needs[targetKey] === 0) break;
+                        }
+                    }
+                }
+            }
+        }
+        return { newData, transactions: trans };
+    }
+
+    function renderCompareTable(before, after, minStock) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        for (let i=0; i<before.length; i++) {
+            const pre = before[i];
+            const post = after[i];
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = pre.code;
+            row.insertCell(1).innerText = pre.name;
+            function addCell(value, isBefore, afterVal) {
+                let cell = row.insertCell();
+                cell.innerText = value;
+                cell.classList.add(isBefore ? 'before-cell' : 'after-cell');
+                if (!isBefore) {
+                    if (value < minStock) cell.classList.add('low-stock');
+                    if (afterVal !== undefined && afterVal !== value) cell.classList.add('changed-cell');
+                }
+            }
+            addCell(pre.hq, true); addCell(post.hq, false, pre.hq);
+            addCell(pre.shopee, true); addCell(post.shopee, false, pre.shopee);
+            addCell(pre.modA, true); addCell(post.modA, false, pre.modA);
+            addCell(pre.modB, true); addCell(post.modB, false, pre.modB);
+            addCell(pre.modC, true); addCell(post.modC, false, pre.modC);
+            addCell(pre.modD, true); addCell(post.modD, false, pre.modD);
+            addCell(pre.modE, true); addCell(post.modE, false, pre.modE);
+        }
+        filterTable();
+    }
+
+    function renderLogAndInvoices(transactions, coordinator, dateStr) {
+        const logDiv = document.getElementById('transferLog');
+        if (transactions.length === 0) {
+            logDiv.innerHTML = `📋 Không có điều phối nào.`;
+        } else {
+            let logHtml = `<strong>📌 NHẬT KÝ (${dateStr}) - Người: ${coordinator}</strong><br>`;
+            for (let t of transactions) {
+                logHtml += `✔️ [${t.code}] ${t.from} → ${t.to} : ${t.quantity} chiếc (${t.reason})<br>`;
+            }
+            logDiv.innerHTML = logHtml;
+        }
+        let outMap = new Map(), inMap = new Map();
+        for (let t of transactions) {
+            if (!outMap.has(t.from)) outMap.set(t.from, []);
+            outMap.get(t.from).push({ code: t.code, quantity: t.quantity, to: t.to });
+            if (!inMap.has(t.to)) inMap.set(t.to, []);
+            inMap.get(t.to).push({ code: t.code, quantity: t.quantity, from: t.from });
+        }
+        let invoicesHtml = '';
+        for (let [store, items] of outMap.entries()) {
+            let totalQty = items.reduce((s,i)=>s+i.quantity,0);
+            invoicesHtml += `<div class="invoice-card"><h3>📤 PHIẾU XUẤT - ${store}</h3>
+                <div><strong>Ngày:</strong> ${dateStr}</div><div><strong>Người điều phối:</strong> ${coordinator}</div>
+                <div><strong>Xuất cho:</strong> ${[...new Set(items.map(i=>i.to))].join(', ')}</div>
+                <div style="margin-top:10px;"><strong>Chi tiết:</strong></div>
+                ${items.map(it => `<div class="invoice-row"><span>${it.code}</span><span>${it.quantity} → ${it.to}</span></div>`).join('')}
+                <div class="invoice-total">Tổng xuất: ${totalQty} chiếc</div>
+                <div class="sign-line"><span>Người xuất</span><span>Thủ kho</span></div><div class="sign-line"><span>.................</span><span>.................</span></div></div>`;
+        }
+        for (let [store, items] of inMap.entries()) {
+            let totalQty = items.reduce((s,i)=>s+i.quantity,0);
+            invoicesHtml += `<div class="invoice-card"><h3>📥 PHIẾU NHẬP - ${store}</h3>
+                <div><strong>Ngày:</strong> ${dateStr}</div><div><strong>Người điều phối:</strong> ${coordinator}</div>
+                <div><strong>Nhận từ:</strong> ${[...new Set(items.map(i=>i.from))].join(', ')}</div>
+                <div style="margin-top:10px;"><strong>Chi tiết:</strong></div>
+                ${items.map(it => `<div class="invoice-row"><span>${it.code}</span><span>${it.quantity} từ ${it.from}</span></div>`).join('')}
+                <div class="invoice-total">Tổng nhập: ${totalQty} chiếc</div>
+                <div class="sign-line"><span>Người nhận</span><span>Thủ kho</span></div><div class="sign-line"><span>.................</span><span>.................</span></div></div>`;
+        }
+        document.getElementById('invoicesContainer').innerHTML = invoicesHtml || `<div style="text-align:center;">✅ Không có giao dịch.</div>`;
+    }
+
+    function updateSmartAlert(data, minStock) {
+        let warnings = [];
+        let totalHQ = data.reduce((s,item)=>s+item.hq,0);
+        if (totalHQ < 100) warnings.push(`⚠️ KHO TỔNG chỉ còn ${totalHQ} chiếc, đề xuất nhập thêm hàng!`);
+        const storeNames = { shopee:"Shopee", modA:"Modul A", modB:"Modul B", modC:"Modul C", modD:"Modul D", modE:"Modul E" };
+        for (let item of data) {
+            for (let [key, name] of Object.entries(storeNames)) {
+                let val = item[key];
+                let deficit = minStock - val;
+                if (val < minStock && deficit > minStock * 0.3) {
+                    warnings.push(`⚠️ ${name} thiếu ${deficit} chiếc (còn ${val}, ngưỡng ${minStock}) - Mã: ${item.code}`);
+                }
+            }
+        }
+        const alertDiv = document.getElementById('smartAlert');
+        if (warnings.length === 0) {
+            alertDiv.style.display = 'none';
+        } else {
+            alertDiv.innerHTML = '<strong>🔔 CẢNH BÁO THÔNG MINH:</strong><br>' + warnings.join('<br>');
+            alertDiv.style.display = 'flex';
+        }
+    }
+
+    // ==================== LƯU LỊCH SỬ ====================
+    function loadHistory() {
+        const saved = localStorage.getItem("allocationHistory");
+        if (saved) history = JSON.parse(saved);
+        renderHistory();
+    }
+
+    function saveHistory() {
+        localStorage.setItem("allocationHistory", JSON.stringify(history));
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const container = document.getElementById('historyArea');
+        if (!history.length) {
+            container.innerHTML = '<i>Chưa có phiên điều phối nào được lưu.</i>';
+            return;
+        }
+        let html = '';
+        for (let i = history.length-1; i >= 0; i--) {
+            const h = history[i];
+            html += `
+                <div class="history-item">
+                    <strong>📅 ${h.date}</strong> | Người: ${h.coordinator} | Ngưỡng: ${h.minStock}<br>
+                    Số giao dịch: ${h.transactions.length}<br>
+                    <button class="btn-outline" style="font-size:0.7rem; margin-top:6px;" onclick="loadHistorySession(${i})">🔁 Tải lại phiên này</button>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+
+    window.loadHistorySession = function(idx) {
+        const session = history[idx];
+        document.getElementById('coordinator').value = session.coordinator;
+        document.getElementById('dateTransfer').value = session.date;
+        document.getElementById('minStock').value = session.minStock;
+        beforeData = session.beforeState;
+        currentData = session.afterState;
+        currentTransactions = session.transactions;
+        renderCompareTable(beforeData, currentData, session.minStock);
+        renderLogAndInvoices(session.transactions, session.coordinator, session.date);
+        updateSmartAlert(currentData, session.minStock);
+        populateProductList();
+        alert(`Đã tải phiên ngày ${session.date}`);
+    }
+
+    function saveCurrentSession() {
+        const coordinator = document.getElementById('coordinator').value.trim() || "Hệ thống";
+        let dateInput = document.getElementById('dateTransfer').value;
+        if (!dateInput) dateInput = new Date().toISOString().slice(0,10);
+        const minStock = parseInt(document.getElementById('minStock').value) || 10;
+        const session = {
+            date: dateInput,
+            coordinator: coordinator,
+            minStock: minStock,
+            transactions: currentTransactions,
+            beforeState: beforeData,
+            afterState: currentData
+        };
+        history.push(session);
+        saveHistory();
+        alert("Đã lưu phiên điều phối vào lịch sử!");
+    }
+
+    // ==================== CÁC HÀM CHÍNH ====================
+    function refreshAfterAllocation() {
+        const minStock = parseInt(document.getElementById('minStock').value) || 10;
+        const coordinator = document.getElementById('coordinator').value.trim() || "Hệ thống";
+        let dateInput = document.getElementById('dateTransfer').value;
+        if (!dateInput) {
+            let today = new Date().toISOString().slice(0,10);
+            document.getElementById('dateTransfer').value = today;
+            dateInput = today;
+        }
+
+        const beforeState = copyData(currentData);
+        const { newData, transactions } = runAllocationWithTrans(currentData, minStock);
+        currentData = newData;
+        beforeData = beforeState;
+        currentTransactions = transactions;
+
+        renderCompareTable(beforeData, currentData, minStock);
+        renderLogAndInvoices(currentTransactions, coordinator, dateInput);
+        updateSmartAlert(currentData, minStock);
+        populateProductList();
+        saveCurrentSession();
+    }
+
+    function resetToSampleData() {
+        // Dữ liệu mẫu ban đầu (mặc định)
+        const sampleData = [
+            { code: "18UO25A035-SA026-L", name: "Quần lót nam Cotton", hq:3650, shopee:124, modA:280, modB:43, modC:10, modD:12, modE:4 },
+            { code: "18UO25A035-SA027-L", name: "Quần lót nam Cotton", hq:0,   shopee:17, modA:12, modB:1,  modC:2,  modD:0, modE:0 },
+            { code: "18UO25A035-SA026-M", name: "Quần lót nam Cotton", hq:50,  shopee:6,  modA:8,  modB:7,  modC:1,  modD:2, modE:1 },
+            { code: "18UO25A035-SA026-S", name: "Quần lót nam Cotton", hq:50,  shopee:1,  modA:4,  modB:10, modC:0,  modD:1, modE:0 },
+            { code: "18UO25A035-SA026-XL", name: "Quần lót nam Cotton", hq:300, shopee:7,  modA:2,  modB:2,  modC:1,  modD:0, modE:0 },
+            { code: "18UO25A035-SA026-XX", name: "Quần lót nam Cotton", hq:300, shopee:14, modA:10, modB:6,  modC:1,  modD:0, modE:0 },
+            { code: "18UO25A035-SA027-M", name: "Quần lót nam Cotton", hq:50,  shopee:12, modA:1,  modB:1,  modC:1,  modD:0, modE:0 },
+            { code: "18UO25A035-SA027-S", name: "Quần lót nam Cotton", hq:300, shopee:39, modA:2,  modB:2,  modC:0,  modD:0, modE:0 },
+            { code: "18UO25A035-SA027-XL", name: "Quần lót nam Cotton", hq:200, shopee:6,  modA:3,  modB:1,  modC:0,  modD:2, modE:0 },
+            { code: "18UO25A035-SA027-XX", name: "Quần lót nam Cotton", hq:100, shopee:11, modA:2,  modB:1,  modC:0,  modD:0, modE:0 },
+            { code: "18UO25A035-SA065-L", name: "Quần lót nam Cotton", hq:100, shopee:2,  modA:6,  modB:2,  modC:3,  modD:1, modE:0 },
+            { code: "18UO25A035-SA065-M", name: "Quần lót nam Cotton", hq:0,   shopee:5,  modA:2,  modB:5,  modC:0,  modD:2, modE:0 },
+            { code: "18UO25A035-SA065-S", name: "Quần lót nam Cotton", hq:0,   shopee:11, modA:2,  modB:6,  modC:0,  modD:0, modE:0 },
+            { code: "18UO25A035-SA065-XL", name: "Quần lót nam Cotton", hq:0,   shopee:2,  modA:6,  modB:3,  modC:0,  modD:0, modE:0 },
+            { code: "18UO25A035-SA065-XX", name: "Quần lót nam Cotton", hq:0,   shopee:1,  modA:1,  modB:4,  modC:0,  modD:0, modE:0 },
+            { code: "18UO25A035-SK001-L", name: "Quần lót nam Cotton", hq:0,   shopee:4,  modA:2,  modB:0,  modC:0,  modD:0, modE:0 },
+            { code: "18UO25A035-SK001-M", name: "Quần lót nam Cotton", hq:0,   shopee:1,  modA:0,  modB:1,  modC:0,  modD:0, modE:0 }
+        ];
+        originalData = JSON.parse(JSON.stringify(sampleData));
+        resetAllFromOriginal();
+    }
+
+    function exportToExcel() {
+        let ws1 = [["Mã hàng", "Tên hàng", "Kho tổng(Trước)", "Kho tổng(Sau)", "Shopee(Trước)", "Shopee(Sau)", "Modul A(Trước)", "Modul A(Sau)", "Modul B(Trước)", "Modul B(Sau)", "Modul C(Trước)", "Modul C(Sau)", "Modul D(Trước)", "Modul D(Sau)", "Modul E(Trước)", "Modul E(Sau)"]];
+        for (let i=0; i<beforeData.length; i++) {
+            ws1.push([
+                beforeData[i].code, beforeData[i].name,
+                beforeData[i].hq, currentData[i].hq,
+                beforeData[i].shopee, currentData[i].shopee,
+                beforeData[i].modA, currentData[i].modA,
+                beforeData[i].modB, currentData[i].modB,
+                beforeData[i].modC, currentData[i].modC,
+                beforeData[i].modD, currentData[i].modD,
+                beforeData[i].modE, currentData[i].modE
+            ]);
+        }
+        let ws2 = [["STT", "Mã hàng", "Từ", "Đến", "Số lượng", "Lý do"]];
+        currentTransactions.forEach((t,idx) => { ws2.push([idx+1, t.code, t.from, t.to, t.quantity, t.reason]); });
+        let summaryMap = new Map();
+        for (let t of currentTransactions) {
+            if (!summaryMap.has(t.from)) summaryMap.set(t.from, { export: 0, import: 0 });
+            if (!summaryMap.has(t.to)) summaryMap.set(t.to, { export: 0, import: 0 });
+            summaryMap.get(t.from).export += t.quantity;
+            summaryMap.get(t.to).import += t.quantity;
+        }
+        let ws3 = [["Cửa hàng", "Tổng xuất", "Tổng nhập"]];
+        for (let [store, val] of summaryMap.entries()) ws3.push([store, val.export, val.import]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(ws1), "Trước_Sau");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(ws2), "Nhat_ky_dieu_phoi");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(ws3), "Tong_hop_nhap_xuat");
+        XLSX.writeFile(wb, `Dieu_phoi_hang_hoa_${new Date().toISOString().slice(0,19)}.xlsx`);
+    }
+
+    function printAllInvoices() {
+        const printWindow = window.open('', '_blank');
+        const invoiceHTML = document.getElementById('invoicesContainer').innerHTML;
+        const style = document.querySelector('style').innerHTML;
+        printWindow.document.write(`<html><head><title>Phieu_dieu_phoi</title><style>${style} body{padding:20px;} .toolbar, .print-buttons, .no-print{display:none;}</style></head><body><h2>📋 PHIẾU ĐIỀU PHỐI HÀNG HÓA</h2><div class="invoice-area" style="display:flex; flex-wrap:wrap;">${invoiceHTML}</div></body></html>`);
+        printWindow.document.close();
+        printWindow.print();
+    }
+
+    function exportPdfInvoices() {
+        const element = document.getElementById('invoicesContainer');
+        html2pdf().set({ margin:0.5, filename:`Phieu_dieu_phoi_${new Date().toISOString().slice(0,19)}.pdf`, image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'in',format:'a4',orientation:'portrait'} }).from(element).save();
+    }
+
+    // ==================== KHỞI TẠO ====================
+    function init() {
+        resetToSampleData(); // dữ liệu mẫu ban đầu
+        loadHistory();
+        document.getElementById('productFilter').addEventListener('input', filterTable);
+        document.getElementById('allocateBtn').addEventListener('click', refreshAfterAllocation);
+        document.getElementById('resetBtn').addEventListener('click', resetToSampleData);
+        document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+        document.getElementById('printAllInvoices').addEventListener('click', printAllInvoices);
+        document.getElementById('exportPdfInvoices').addEventListener('click', exportPdfInvoices);
+        document.getElementById('importBtn').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (e.target.files.length) importExcel(e.target.files[0]);
+            e.target.value = '';
+        });
+    }
+    init();
+</script>
+</body>
+</html>
