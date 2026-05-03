@@ -1,0 +1,18 @@
+<div class="print-buttons no-print">
+  <button (click)="print()">In tất cả phiếu</button>
+  <button class="btn-outline" (click)="exportPdf()">Xuất PDF tất cả phiếu</button>
+</div>
+
+<div class="invoice-area" #invoiceContainer>
+  @if (!groups.length) {
+    <div class="empty-state">⏳ Nhấn THỰC HIỆN ĐIỀU PHỐI để tạo phiếu.</div>
+  } @else {
+    @for (group of groups; track group.store + group.type) {
+      <app-invoice-card
+        [group]="group"
+        [coordinator]="coordinator"
+        [date]="date">
+      </app-invoice-card>
+    }
+  }
+</div>

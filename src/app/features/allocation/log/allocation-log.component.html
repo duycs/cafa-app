@@ -1,0 +1,10 @@
+<div class="log-area no-print">
+  @if (!transactions.length) {
+    <span class="log-empty">⏳ Nhấn "Thực hiện điều phối" để xem chi tiết...</span>
+  } @else {
+    <strong>NHẬT KÝ ({{ date }}) - Người: {{ coordinator }}</strong>
+    @for (t of transactions; track $index) {
+      <div>✔️ [{{ t.code }}] {{ t.from }} → {{ t.to }} : {{ t.quantity }} chiếc ({{ t.reason }})</div>
+    }
+  }
+</div>

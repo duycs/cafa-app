@@ -1,0 +1,54 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: #f8fafc;
+  padding: 15px 20px;
+  border-radius: 32px;
+  margin-bottom: 24px;
+  align-items: flex-end;
+  border: 1px solid #e2edf2;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 250px;
+
+  label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #2c5282;
+  }
+}
+
+.param-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #2c5282;
+  }
+}
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #e2e8f0;
+  border-radius: 30px;
+  padding: 3px 10px;
+  font-size: 0.7rem;
+  gap: 6px;
+}
+
+.clear-filter {
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--color-primary);
+}

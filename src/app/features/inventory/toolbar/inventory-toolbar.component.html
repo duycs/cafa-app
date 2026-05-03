@@ -1,0 +1,45 @@
+<div class="toolbar no-print">
+  <!-- Filter -->
+  <div class="filter-group">
+    <label>Lọc mã hàng</label>
+    <input type="text" [(ngModel)]="filter" list="productList" placeholder="Nhập hoặc chọn mã hàng...">
+    <datalist id="productList">
+      @for (code of productCodes; track code) {
+        <option [value]="code"></option>
+      }
+    </datalist>
+    @if (filter) {
+      <span class="filter-badge">
+        Đang lọc: "{{ filter }}"
+        <span class="clear-filter" (click)="clearFilter()">✖</span>
+      </span>
+    }
+  </div>
+
+  <!-- Parameters -->
+  <div class="param-group">
+    <label>Ngưỡng tồn</label>
+    <input type="number" [(ngModel)]="minStock" step="1" min="0">
+  </div>
+  <div class="param-group">
+    <label>Người điều phối</label>
+    <input type="text" [(ngModel)]="coordinator">
+  </div>
+  <div class="param-group">
+    <label>Ngày</label>
+    <input type="date" [(ngModel)]="date">
+  </div>
+
+  <!-- Actions -->
+  <button class="btn-secondary" (click)="allocate.emit()">THỰC HIỆN ĐIỀU PHỐI</button>
+  <button class="btn-outline"   (click)="resetSample.emit()">RESET DỮ LIỆU MẪU</button>
+
+  <label class="file-input-wrapper">
+    <button class="btn-import" type="button" onclick="this.parentElement.querySelector('input').click()">
+      Import Excel
+    </button>
+    <input type="file" accept=".xlsx,.xls" (change)="onFileChange($event)" style="display:none">
+  </label>
+
+  <button class="btn-success" (click)="exportExcel.emit()">Xuất Excel</button>
+</div>

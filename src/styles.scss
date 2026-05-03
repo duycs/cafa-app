@@ -1,0 +1,55 @@
+@use 'styles/variables';
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  background: var(--color-bg);
+  margin: 0;
+  padding: 20px;
+}
+
+// ---- Shared button styles ----
+button {
+  background: var(--color-primary);
+  border: none;
+  padding: 8px 20px;
+  border-radius: var(--radius-pill);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: transform 0.15s, filter 0.15s;
+
+  &:hover { transform: translateY(-2px); filter: brightness(0.95); }
+}
+
+button.btn-outline {
+  background: white;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+button.btn-secondary { background: var(--color-secondary); }
+button.btn-import    { background: var(--color-success); }
+button.btn-success   { background: var(--color-success); }
+
+// ---- Shared input/select ----
+input, select {
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid #cbd5e1;
+  background: white;
+  font-size: 0.85rem;
+  min-width: 130px;
+  outline: none;
+
+  &:focus { border-color: var(--color-secondary); }
+}
+
+// ---- Print ----
+@media print {
+  body { background: white; padding: 0; }
+  .no-print { display: none !important; }
+  .invoice-card { break-inside: avoid; width: 100%; margin-bottom: 20px; }
+}

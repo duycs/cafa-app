@@ -1,0 +1,35 @@
+<div style="overflow-x: auto;">
+  <table class="inventory-table">
+    <thead>
+      <tr>
+        <th rowspan="2">Mã hàng</th>
+        <th rowspan="2">Tên hàng</th>
+        @for (col of storeCols; track col.key) {
+          <th colspan="2">{{ col.label }}</th>
+        }
+      </tr>
+      <tr>
+        @for (col of storeCols; track col.key) {
+          <th>Trước</th>
+          <th>Sau</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of before; track item.code; let i = $index) {
+        <tr>
+          <td>{{ item.code }}</td>
+          <td>{{ item.name }}</td>
+          @for (col of storeCols; track col.key) {
+            <td class="before-cell">{{ item[col.key] }}</td>
+            <td [ngClass]="{
+              'after-cell': true,
+              'low-stock':  isLow(+after[i][col.key]),
+              'changed-cell': isChanged(+item[col.key], +after[i][col.key])
+            }">{{ after[i][col.key] }}</td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

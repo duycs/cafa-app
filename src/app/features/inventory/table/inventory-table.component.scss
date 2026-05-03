@@ -1,0 +1,37 @@
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  box-shadow: 0 0 0 1px #cbd5e1;
+  border-radius: 16px;
+  overflow: hidden;
+
+  th, td {
+    border: 1px solid #d0dae8;
+    padding: 8px 6px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  th {
+    background: #1e2a47;
+    color: white;
+    font-weight: 600;
+  }
+}
+
+.before-cell  { background-color: #fff7e0; }
+.after-cell   { background-color: #f0fdf4; }
+
+.changed-cell {
+  background-color: #d4edda !important;
+  font-weight: bold;
+  border: 2px solid #28a745 !important;
+}
+
+.low-stock {
+  background-color: #f8d7da !important;
+  color: #721c24;
+  font-weight: bold;
+}

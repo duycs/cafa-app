@@ -1,0 +1,20 @@
+<div class="history-area no-print">
+  @if (!sessions.length) {
+    <i>Chưa có phiên điều phối nào được lưu.</i>
+  } @else {
+    @for (session of sessions.slice().reverse(); track session.id) {
+      <div class="history-item">
+        <div class="history-header">
+          <strong>{{ session.date }}</strong>
+          <span>Người: {{ session.coordinator }}</span>
+          <span>Ngưỡng: {{ session.minStock }}</span>
+          <span>{{ session.transactions.length }} giao dịch</span>
+        </div>
+        <div class="history-actions">
+          <button class="btn-outline" (click)="load(session)">Tải lại phiên này</button>
+          <button class="btn-danger"  (click)="remove(session.id, $event)">Xoá</button>
+        </div>
+      </div>
+    }
+  }
+</div>

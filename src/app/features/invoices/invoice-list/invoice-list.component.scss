@@ -1,0 +1,21 @@
+.print-buttons {
+  margin: 20px 0;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.invoice-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+
+.empty-state {
+  color: #888;
+  text-align: center;
+  width: 100%;
+  padding: 20px;
+}

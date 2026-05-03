@@ -1,0 +1,49 @@
+<div class="container" id="mainContent">
+
+  <!-- Header -->
+  <h1 class="page-title">ĐIỀU PHỐI HÀNG HÓA
+    <small>Import Excel | Lọc sản phẩm | Lưu lịch sử</small>
+  </h1>
+  <div class="sub-header">
+    <span>Nguyên tắc: Kho tổng ưu tiên cấp → nếu hết, điều chuyển từ ưu tiên thấp lên cao</span>
+    <span>Thứ tự ưu tiên: <strong>A &gt; B &gt; C &gt; D &gt; E &gt; Shopee</strong></span>
+  </div>
+
+  <!-- Toolbar -->
+  <app-inventory-toolbar
+    (allocate)="runAllocation()"
+    (resetSample)="loadSampleData()"
+    (exportExcel)="exportExcel()">
+  </app-inventory-toolbar>
+
+  <!-- Smart Alerts -->
+  <app-smart-alert [warnings]="store.smartWarnings()"></app-smart-alert>
+
+  <!-- Inventory Table -->
+  <app-inventory-table
+    [before]="store.beforeSnapshot()"
+    [after]="store.products()"
+    [minStock]="store.minStock()">
+  </app-inventory-table>
+
+  <!-- Allocation Log -->
+  <app-section-title label="NHẬT KÝ ĐIỀU PHỐI HIỆN TẠI"></app-section-title>
+  <app-allocation-log
+    [transactions]="store.transactions()"
+    [coordinator]="store.coordinator()"
+    [date]="store.date()">
+  </app-allocation-log>
+
+  <!-- History -->
+  <app-section-title label="LỊCH SỬ ĐIỀU PHỐI (đã lưu)"></app-section-title>
+  <app-history-list (loadSession)="restoreSession($event)"></app-history-list>
+
+  <!-- Invoices -->
+  <app-section-title label="PHIẾU ĐIỀU PHỐI (nhập - xuất)"></app-section-title>
+  <app-invoice-list
+    [groups]="store.invoiceGroups()"
+    [coordinator]="store.coordinator()"
+    [date]="store.date()">
+  </app-invoice-list>
+
+</div>

@@ -1,0 +1,35 @@
+<div class="invoice-card">
+  <h3>
+    {{ group.type === 'export' ? '📤 PHIẾU XUẤT' : '📥 PHIẾU NHẬP' }} — {{ group.store }}
+  </h3>
+  <div class="invoice-meta">
+    <div><strong>Ngày:</strong> {{ date }}</div>
+    <div><strong>Người điều phối:</strong> {{ coordinator }}</div>
+    <div>
+      <strong>{{ group.type === 'export' ? 'Xuất cho' : 'Nhận từ' }}:</strong>
+      {{ counterparts }}
+    </div>
+  </div>
+  <div class="invoice-items">
+    <strong>Chi tiết:</strong>
+    @for (item of group.items; track $index) {
+      <div class="invoice-row">
+        <span>{{ item.code }}</span>
+        <span>
+          {{ item.quantity }}
+          {{ group.type === 'export' ? '→' : 'từ' }}
+          {{ item.counterpart }}
+        </span>
+      </div>
+    }
+  </div>
+  <div class="invoice-total">Tổng {{ group.type === 'export' ? 'xuất' : 'nhập' }}: {{ group.totalQty }} chiếc</div>
+  <div class="sign-line">
+    <span>{{ group.type === 'export' ? 'Người xuất' : 'Người nhận' }}</span>
+    <span>Thủ kho</span>
+  </div>
+  <div class="sign-line dots">
+    <span>.................</span>
+    <span>.................</span>
+  </div>
+</div>
