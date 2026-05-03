@@ -1,27 +1,141 @@
-# CafaApp
+# CAFA App — Ứng dụng Điều phối Hàng hóa
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.10.
+Ứng dụng Angular quản lý và điều phối tồn kho hàng hóa giữa kho tổng và các modul bán hàng (Modul A/B/C/D/E, Shopee).
 
-## Development server
+**Deploy Vercel:** [https://cafa-4o5sdkq5g-duycs-projects.vercel.app/](https://cafa-4o5sdkq5g-duycs-projects.vercel.app/)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+---
 
-## Code scaffolding
+## Yêu cầu môi trường
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+| Công cụ | Phiên bản |
+|---|---|
+| Node.js | `^22.12.0` hoặc `>=24.0.0` |
+| npm | `>=8.0.0` |
+| Angular CLI | `21.x` |
 
-## Build
+> Khuyến nghị dùng [nvm](https://github.com/nvm-sh/nvm) để quản lý phiên bản Node.js.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+---
 
-## Running unit tests
+## Cài đặt môi trường
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+### 1. Cài Node.js v22 qua nvm
 
-## Running end-to-end tests
+```bash
+nvm install 22
+nvm use 22
+nvm alias default 22
+```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Kiểm tra phiên bản:
 
-## Further help
+```bash
+node --version   # v22.x.x
+npm --version    # 10.x.x
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+### 2. Cài Angular CLI
+
+```bash
+npm install -g @angular/cli@21
+```
+
+Kiểm tra:
+
+```bash
+ng version
+```
+
+---
+
+## Cài đặt dự án
+
+### Cài tất cả thư viện
+
+```bash
+npm install
+```
+
+### Cài thêm một thư viện
+
+```bash
+npm install <tên-thư-viện>
+```
+
+Ví dụ:
+
+```bash
+npm install xlsx
+npm install html2pdf.js
+```
+
+---
+
+## Chạy dự án
+
+### Dev server
+
+```bash
+npm start
+# hoặc
+ng serve
+```
+
+Mở trình duyệt tại `http://localhost:4200/`. Ứng dụng tự reload khi thay đổi source.
+
+### Build production
+
+```bash
+npm run build
+# hoặc
+ng build
+```
+
+Kết quả build xuất ra thư mục `dist/cafa-app/`.
+
+### Build chế độ watch (tự build khi có thay đổi)
+
+```bash
+npm run watch
+```
+
+---
+
+## Tạo component/service mới
+
+```bash
+ng generate component features/<tên>
+ng generate service core/services/<tên>
+ng generate pipe shared/pipes/<tên>
+```
+
+---
+
+## Cấu trúc dự án
+
+```
+src/app/
+├── core/
+│   ├── models/          # Các interface: Product, Transaction, Session
+│   └── services/        # AllocationService, AllocationStore, HistoryService, ExcelService, PdfService
+├── features/
+│   ├── dashboard/       # Trang chính (orchestrator)
+│   ├── inventory/       # Toolbar + bảng so sánh tồn kho trước/sau
+│   ├── allocation/      # Cảnh báo thông minh + nhật ký điều phối
+│   ├── invoices/        # Phiếu nhập/xuất
+│   └── history/         # Lịch sử điều phối
+└── shared/
+    ├── components/      # SectionTitle
+    └── pipes/           # LowStockPipe
+```
+
+---
+
+## Thư viện chính
+
+| Thư viện | Mục đích |
+|---|---|
+| `@angular/core` v21 | Framework chính |
+| `xlsx` | Import/Export file Excel |
+| `html2pdf.js` | Xuất phiếu điều phối ra PDF |
