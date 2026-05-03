@@ -2,7 +2,7 @@
 
 Ứng dụng Angular quản lý và điều phối tồn kho hàng hóa giữa kho tổng và các modul bán hàng (Modul A/B/C/D/E, Shopee).
 
-**Deploy Vercel:** [https://cafa-4o5sdkq5g-duycs-projects.vercel.app/](https://cafa-4o5sdkq5g-duycs-projects.vercel.app/)
+**Deploy:** [https://cafa-app.vercel.app](https://cafa-app.vercel.app)
 
 ---
 
@@ -139,3 +139,6 @@ src/app/
 | `@angular/core` v21 | Framework chính |
 | `xlsx` | Import/Export file Excel |
 | `html2pdf.js` | Xuất phiếu điều phối ra PDF |
+
+
+## Commit push code lên nhánh main và sau đó Vercel sẽ build rồi deploy tự động(CI/CD)
